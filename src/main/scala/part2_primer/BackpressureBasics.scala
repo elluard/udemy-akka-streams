@@ -4,6 +4,9 @@ import akka.actor.ActorSystem
 import akka.stream.OverflowStrategy
 import akka.stream.scaladsl.{Flow, Sink, Source}
 
+import scala.concurrent.duration.DurationInt
+import scala.language.postfixOps
+
 object BackpressureBasics extends App {
   implicit val system = ActorSystem("BackpressureBasics")
 
@@ -33,10 +36,10 @@ object BackpressureBasics extends App {
 
   //backpressure 를 사용자 정의하는 경우, dropHead 의 경우에는 buffer 에 가장 오래 쌓인 것 부터 버린다.
   val bufferFlow = simpleFlow.buffer(10, overflowStrategy = OverflowStrategy.fail)
-  fastSource.async
-    .via(bufferFlow).async
-    .to(slowSink)
-    .run()
+//  fastSource.async
+//    .via(bufferFlow).async
+//    .to(slowSink)
+//    .run()
 
   /**
    * 버퍼가 가득 찰 경우 전락
@@ -47,4 +50,7 @@ object BackpressureBasics extends App {
    * OverflowStrategy.backpressure -> backpressure 발생
    * OverflowStrategy.fail -> 액터 실패처리, 액터를 종료함
    */
+
+  // Throttling, Source 에서 데이터 전달 속도를 조정한다.
+  fastSource.throttle(2, 1 second).runWith(Sink.foreach(println))
 }
