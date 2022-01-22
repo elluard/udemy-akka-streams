@@ -29,7 +29,7 @@ object IntegreatingActors extends App {
   val numbersSource = Source(1 to 10)
 
   // actor as a flow
-  implicit val timeOut = Timeout(3 seconds)
+  implicit val timeOut: Timeout = Timeout(3 seconds)
   val actorBasedFlow = Flow[Int].ask(parallelism = 4)(simpleActor)
 
 //  numbersSource.via(actorBasedFlow).to(Sink.ignore).run()
